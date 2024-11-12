@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odd or Even Cricket Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .game-container h1 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+
+        .output {
+            height: 200px;
+            width: 100%;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .input-section {
+            margin-top: 15px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Odd or Even Cricket</h1>
+    <div class="output" id="output">
+        <p>Welcome to the Odd or Even Cricket Game!</p>
+        <p>Choose numbers 1 to 5 for the toss, and numbers 0 to 6 while playing.</p>
+        <p>If the same number is chosen by both you and the computer, the batting side loses a wicket.</p>
+        <p>It's a game of two wickets!</p>
+    </div>
+    <div class="input-section">
+        <input type="number" id="userInput" placeholder="Enter choice">
+        <button onclick="gameHandler()" id="gameButton">Start Game</button>
+    </div>
+</div>
+
+<script>
+    const output = document.getElementById("output");
+    const userInput = document.getElementById("userInput");
+    const gameButton = document.getElementById("gameButton");
+
+    let tossChoice, choice, wicket = 0, runs = 0, runs2 = 0;
+    let isBatting = false;
+    let phase = "tossChoice";
+
+    function addToOutput(text) {
+        output.innerHTML += `<p>${text}</p>`;
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function gameHandler() {
+        const input = parseInt(userInput.value);
+        userInput.value = "";
+        
+        if (phase === "tossChoice") {
+            tossChoice = input;
+            addToOutput(`You chose ${tossChoice === 1 ? 'odd' : 'even'} for the toss.`);
+            phase = "toss";
+            addToOutput("Enter your toss number between 1 and 5.");
+        } else if (phase === "toss") {
+            const toss = Math.floor(Math.random() * 5) + 1;
+            const outcome = toss + input;
+            addToOutput(`Computer chose ${toss}. Total is ${outcome}.`);
+
+            if ((outcome % 2 === 0 && tossChoice === 2) || (outcome % 2 !== 0 && tossChoice === 1)) {
+                phase = "batBowlChoice";
+                addToOutput("You won the toss! Enter 1 to bat, 2 to bowl.");
+            } else {
+                phase = "batBowlChoice";
+                addToOutput("Computer won the toss! You are prompted to choose 1 for batting or 2 for bowling.");
+            }
+        } else if (phase === "batBowlChoice") {
+            choice = input;
+            isBatting = (choice === 1);
+            addToOutput(`You chose to ${isBatting ? 'bat' : 'bowl'}. Game starts!`);
+            phase = "play";
+            addToOutput(isBatting ? "Enter your run (0-6):" : "Enter your bowl (0-6):");
+        } else if (phase === "play") {
+            const computerPlay = Math.floor(Math.random() * 7);
+
+            if (isBatting) {
+                if (input === computerPlay) {
+                    wicket++;
+                    addToOutput(`You lost a wicket! Wickets: ${wicket}`);
+                } else {
+                    runs += input;
+                    addToOutput(`Scored ${input} runs. Total runs: ${runs}`);
+                }
+
+                if (wicket === 2) {
+                    addToOutput(`You lost two wickets with a score of ${runs}. Your turn to bowl.`);
+                    wicket = 0;
+                    isBatting = false;
+                }
+
+            } else {
+                if (input === computerPlay) {
+                    wicket++;
+                    addToOutput(`Gained a wicket! Wickets taken: ${wicket}`);
+                } else {
+                    runs2 += input;
+                    addToOutput(`Computer scored ${input} runs. Total computer score: ${runs2}`);
+                }
+
+                if (wicket === 2 || runs2 >= runs) {
+                    const result = runs2 >= runs ? `Computer chased the score! You lost.` : `You defended the score! You won by ${runs - runs2} runs.`;
+                    addToOutput(result);
+                    gameButton.disabled = true;
+                    addToOutput("Game over.");
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
